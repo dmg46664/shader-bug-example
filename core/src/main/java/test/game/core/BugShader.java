@@ -9,9 +9,9 @@ import playn.core.gl.GLBuffer.Short;
 import playn.core.gl.GLContext;
 import playn.core.gl.GLShader;
 
-public class CanvasShader extends GLShader{
+public class BugShader extends GLShader{
 
-	public CanvasShader(GLContext ctx) {
+	public BugShader(GLContext ctx) {
 		super(ctx);
 	}
 	
@@ -21,35 +21,35 @@ public class CanvasShader extends GLShader{
 	}
 	
 	private final String VERTEX_SHADER_CODE = 
-			 "uniform vec2 uScreenSize;\r\n" + 
-			 "uniform vec2 uOffset;\r\n" + 
-			 "uniform float uScale;\r\n" + 
-			 "attribute vec3 vPosition; //attributes used for connecting to vertex data\r\n" + 
-			 "attribute vec4 aColor;\r\n" + 
-			 "varying vec4 v_Color;\r\n" + 
-			 "void main(){\r\n" + 
-			 "	mat4 toScreenM = mat4(uScale, 0, 0, 0,\r\n" + 
-			 "							0, uScale, 0, 0,\r\n" + 
-			 "							0, 0, 0, 0,\r\n" + 
-			 "							uOffset.x, uOffset.y, 0, 1) ;\r\n" + 
-			 "\r\n" + 
-			 "	mat4 toNormalM = mat4(2.0/uScreenSize.x, 0, 0, 0,\r\n" + 
-			 "							0, -2.0/uScreenSize.y, 0, 0,\r\n" + 
-			 "							0, 0, 0, 0,\r\n" + 
-			 "							-1.0, 1.0, 0, 1) ;\r\n" + 
-			 "\r\n" + 
-			 "	gl_Position =  toNormalM * toScreenM * vec4(vPosition, 1.0); \r\n" + 
-			 "	v_Color = aColor ;\r\n" + 
+			 "uniform vec2 uScreenSize;\n" + 
+			 "uniform vec2 uOffset;\n" + 
+			 "uniform float uScale;\n" + 
+			 "attribute vec2 vPosition; //attributes used for connecting to vertex data\n" +
+			 "attribute vec4 aColor;\n" + 
+			 "varying vec4 v_Color;\n" + 
+			 "void main(){\n" + 
+			 "	mat4 toScreenM = mat4(uScale, 0, 0, 0,\n" + 
+			 "							0, uScale, 0, 0,\n" + 
+			 "							0, 0, 0, 0,\n" + 
+			 "							uOffset.x, uOffset.y, 0, 1) ;\n" + 
+			 "\n" + 
+			 "	mat4 toNormalM = mat4(2.0/uScreenSize.x, 0, 0, 0,\n" + 
+			 "							0, -2.0/uScreenSize.y, 0, 0,\n" + 
+			 "							0, 0, 0, 0,\n" + 
+			 "							-1.0, 1.0, 0, 1) ;\n" + 
+			 "\n" + 
+			 "	gl_Position =  toNormalM * toScreenM * vec4(vPosition, 0.0, 1.0); \n" +
+			 "	v_Color = aColor ;\n" + 
 			 "}";
 
 	private final String FRAGMENT_SHADER_CODE = 
 			"#ifdef GL_ES\n" +
 			"precision highp float;\n" +
 			"#endif\n" +
-			"varying vec4 v_Colour; \n" +
+			"varying vec4 v_Color; \n" +
 			"void main(){              \n" +
-//			"  gl_FragColor = v_Colour ; \n" +
-			"  gl_FragColor = vec4 (0.7, 0.7, 0.9, 1.0); \n" +
+			"  gl_FragColor = v_Color ; \n" +
+//			"  gl_FragColor = vec4 (0.7, 0.7, 0.9, 1.0); \n" +
 			"}                         \n";
 		  
 
@@ -78,7 +78,7 @@ public class CanvasShader extends GLShader{
 			super(vertShader, fragShader);
 			gl = graphics().gl20();
 			
-			this.checkGlError("CanvasShader - constructor - program");
+			this.checkGlError("BugShader - constructor - program");
 
 			//stored in projection			
 			uScreenSize = prog.getUniform2f("uScreenSize");
@@ -87,14 +87,14 @@ public class CanvasShader extends GLShader{
 						
 			//stored in vertices
 			aColour = prog.getAttrib("aColor", 4, GL20.GL_FLOAT);
-			vPosition = prog.getAttrib("vPosition", 3, GL20.GL_FLOAT);
+			vPosition = prog.getAttrib("vPosition", 2, GL20.GL_FLOAT);
 			
-			this.checkGlError("CanvasShader - constructor - inputs");
+			this.checkGlError("BugShader - constructor - inputs");
 			
 			vertices = ctx.createFloatBuffer(0);
 			elements = ctx.createShortBuffer(0);
 			
-			this.checkGlError("CanvasShader - constructor - buffers");
+			this.checkGlError("BugShader - constructor - buffers");
 		}
 
 		@Override
@@ -104,16 +104,18 @@ public class CanvasShader extends GLShader{
 	        
             vertices.bind(GL20.GL_ARRAY_BUFFER);
             vPosition.bind(VERTEX_STRIDE, 0);
-            aColour.bind(VERTEX_STRIDE, 12);
+            aColour.bind(VERTEX_STRIDE, 8);
             
-            elements.bind(GL20.GL_ELEMENT_ARRAY_BUFFER);
-            
+
             //hard coded values for demonstration
             uScreenSize.bind((float) graphics().width(), (float) graphics().height()); //only once, so no stride
-			uOffset.bind(0,  0) ;
-			uScale.bind(1);
-			
-			this.checkGlError("CanvasShader - activate");
+			uOffset.bind(0f,  0f) ;
+			uScale.bind(1f);
+
+			elements.bind(GL20.GL_ELEMENT_ARRAY_BUFFER);
+
+
+			this.checkGlError("BugShader - activate");
 		}
 
 
@@ -180,14 +182,14 @@ public class CanvasShader extends GLShader{
 			elements.add(vertIdx++);
 			
 			gl.glLineWidth(0.5f);
-			
+
 			if (vertices.position() != 0)
 			{
-            vertices.send(GL20.GL_ARRAY_BUFFER, GL20.GL_STREAM_DRAW); //2nd argument is a hint
-            elements.send(GL20.GL_ELEMENT_ARRAY_BUFFER, GL20.GL_STREAM_DRAW);
+				vertices.send(GL20.GL_ARRAY_BUFFER, GL20.GL_STREAM_DRAW); //2nd argument is a hint
+				elements.send(GL20.GL_ELEMENT_ARRAY_BUFFER, GL20.GL_STREAM_DRAW);
 			}
-            elements.drawElements(GL20.GL_LINES, noElements);
-            this.checkGlError("CanvasShader - GL_LINES");
+			elements.drawElements(GL20.GL_LINES, noElements);
+			this.checkGlError("CanvasShader - GL_LINES");
 
 		}
 

@@ -30,7 +30,7 @@ public class Fresh extends Game.Default implements Listener
 		ImageLayer bgLayer = graphics().createImageLayer(bgImage);
 		graphics().rootLayer().add(bgLayer);
 
-		final CanvasShader canvasShader = new CanvasShader(graphics().ctx());
+		final BugShader canvasShader = new BugShader(graphics().ctx());
 		graphics().rootLayer().add(
 				graphics().createImmediateLayer(new ImmediateLayer.Renderer(){
 					@Override
