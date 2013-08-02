@@ -22,36 +22,30 @@ public class BugShader extends GLShader{
 	
 	private final String VERTEX_SHADER_CODE =
 			 "attribute vec2 vPosition; //attributes used for connecting to vertex data\n" +
-			 "attribute vec4 aColor;\n" + 
-			 "varying vec4 v_Color;\n" + 
 			 "void main(){\n" +
 			 "\n" +
 			 "\n" +
 			"	gl_Position =  vec4(vPosition, 0.0, 1.0); \n" +
-			 "	v_Color = aColor ;\n" + 
 			 "}";
 
 	private final String FRAGMENT_SHADER_CODE = 
 			"#ifdef GL_ES\n" +
 			"precision highp float;\n" +
 			"#endif\n" +
-			"varying vec4 v_Color; \n" +
 			"void main(){              \n" +
-			"  gl_FragColor = v_Color ; \n" +
-//			"  gl_FragColor = vec4 (0.7, 0.7, 0.9, 1.0); \n" +
+			"  gl_FragColor = vec4 (0.7, 0.7, 0.9, 1.0); \n" +
 			"}                         \n";
 		  
 
 	
 	
-    protected static final int VERTEX_SIZE = 6; //x,y,r,g,b,a
+    protected static final int VERTEX_SIZE = 2; //x,y,r,g,b,a
     protected static final int FLOAT_SIZE_BYTES = 4;
     protected static final int VERTEX_STRIDE = VERTEX_SIZE * FLOAT_SIZE_BYTES;
 	
 	public class CanvasShaderCore extends GLShader.Core
 	{
 		private Attrib vPosition;
-		private Attrib aColour;
 		private Float vertices;
 		private Short elements;
 		private int noElements;
@@ -65,7 +59,6 @@ public class BugShader extends GLShader{
 			this.checkGlError("BugShader - constructor - program");
 						
 			//stored in vertices
-			aColour = prog.getAttrib("aColor", 4, GL20.GL_FLOAT);
 			vPosition = prog.getAttrib("vPosition", 2, GL20.GL_FLOAT);
 			
 			this.checkGlError("BugShader - constructor - inputs");
@@ -83,7 +76,6 @@ public class BugShader extends GLShader{
 	        
             vertices.bind(GL20.GL_ARRAY_BUFFER);
             vPosition.bind(VERTEX_STRIDE, 0);
-            aColour.bind(VERTEX_STRIDE, 8);
 
 			elements.bind(GL20.GL_ELEMENT_ARRAY_BUFFER);
 
@@ -139,23 +131,19 @@ public class BugShader extends GLShader{
 			//line
 			vertices.add(left) ;
 			vertices.add(bottom) ;
-			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);
 			elements.add(vertIdx++);
 
 			vertices.add(right) ;
 			vertices.add(top) ;
-			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);						
 			elements.add(vertIdx++);	
 			
 			//line
 			vertices.add(left) ;
 			vertices.add(top) ;
-			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);
 			elements.add(vertIdx++);
 
 			vertices.add(right) ;
 			vertices.add(bottom) ;
-			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);						
 			elements.add(vertIdx++);
 			
 			gl.glLineWidth(0.5f);
@@ -179,9 +167,6 @@ public class BugShader extends GLShader{
 		
 	} //end of CanvasShaderCore
 
-	
-	
-
 	@Override
 	protected Core createTextureCore() {
 		return null; //no texture core.
@@ -191,11 +176,4 @@ public class BugShader extends GLShader{
 	protected Core createColorCore() {
 		return new CanvasShaderCore(this.VERTEX_SHADER_CODE, this.FRAGMENT_SHADER_CODE) ;
 	}
-	
-	
-	
-
-
-	
-
 }
