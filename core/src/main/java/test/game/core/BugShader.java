@@ -20,25 +20,14 @@ public class BugShader extends GLShader{
 		return (CanvasShaderCore) curCore ;
 	}
 	
-	private final String VERTEX_SHADER_CODE = 
-			 "uniform vec2 uScreenSize;\n" + 
-			 "uniform vec2 uOffset;\n" + 
-			 "uniform float uScale;\n" + 
+	private final String VERTEX_SHADER_CODE =
 			 "attribute vec2 vPosition; //attributes used for connecting to vertex data\n" +
 			 "attribute vec4 aColor;\n" + 
 			 "varying vec4 v_Color;\n" + 
-			 "void main(){\n" + 
-			 "	mat4 toScreenM = mat4(uScale, 0, 0, 0,\n" + 
-			 "							0, uScale, 0, 0,\n" + 
-			 "							0, 0, 0, 0,\n" + 
-			 "							uOffset.x, uOffset.y, 0, 1) ;\n" + 
-			 "\n" + 
-			 "	mat4 toNormalM = mat4(2.0/uScreenSize.x, 0, 0, 0,\n" + 
-			 "							0, -2.0/uScreenSize.y, 0, 0,\n" + 
-			 "							0, 0, 0, 0,\n" + 
-			 "							-1.0, 1.0, 0, 1) ;\n" + 
-			 "\n" + 
-			 "	gl_Position =  toNormalM * toScreenM * vec4(vPosition, 0.0, 1.0); \n" +
+			 "void main(){\n" +
+			 "\n" +
+			 "\n" +
+			"	gl_Position =  vec4(vPosition, 0.0, 1.0); \n" +
 			 "	v_Color = aColor ;\n" + 
 			 "}";
 
@@ -61,15 +50,10 @@ public class BugShader extends GLShader{
 	
 	public class CanvasShaderCore extends GLShader.Core
 	{
-
-		public int lastActionSizeCount = 0 ;
 		private Attrib vPosition;
 		private Attrib aColour;
 		private Float vertices;
 		private Short elements;
-		private Uniform1f uScale;
-		private Uniform2f uOffset;
-		private Uniform2f uScreenSize;
 		private int noElements;
 		private GL20 gl;
 
@@ -79,11 +63,6 @@ public class BugShader extends GLShader{
 			gl = graphics().gl20();
 			
 			this.checkGlError("BugShader - constructor - program");
-
-			//stored in projection			
-			uScreenSize = prog.getUniform2f("uScreenSize");
-			uOffset = prog.getUniform2f("uOffset");
-			uScale = prog.getUniform1f("uScale");			
 						
 			//stored in vertices
 			aColour = prog.getAttrib("aColor", 4, GL20.GL_FLOAT);
@@ -105,15 +84,8 @@ public class BugShader extends GLShader{
             vertices.bind(GL20.GL_ARRAY_BUFFER);
             vPosition.bind(VERTEX_STRIDE, 0);
             aColour.bind(VERTEX_STRIDE, 8);
-            
-
-            //hard coded values for demonstration
-            uScreenSize.bind((float) graphics().width(), (float) graphics().height()); //only once, so no stride
-			uOffset.bind(0f,  0f) ;
-			uScale.bind(1f);
 
 			elements.bind(GL20.GL_ELEMENT_ARRAY_BUFFER);
-
 
 			this.checkGlError("BugShader - activate");
 		}
@@ -159,25 +131,30 @@ public class BugShader extends GLShader{
 			//element index id
 			int vertIdx = 0 ;
 
+			float left = -1f;
+			float right = 1f;
+			float top = 1f;
+			float bottom = -1f;
+
 			//line
-			vertices.add(200f) ;
-			vertices.add(200f) ;
+			vertices.add(left) ;
+			vertices.add(bottom) ;
 			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);
 			elements.add(vertIdx++);
 
-			vertices.add(800f) ;
-			vertices.add(800f) ;
+			vertices.add(right) ;
+			vertices.add(top) ;
 			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);						
 			elements.add(vertIdx++);	
 			
 			//line
-			vertices.add(200f) ;
-			vertices.add(800f) ;
+			vertices.add(left) ;
+			vertices.add(top) ;
 			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);
 			elements.add(vertIdx++);
 
-			vertices.add(800f) ;
-			vertices.add(200f) ;
+			vertices.add(right) ;
+			vertices.add(bottom) ;
 			vertices.add(0.7f).add(0.7f).add(0.9f).add(1.0f);						
 			elements.add(vertIdx++);
 			

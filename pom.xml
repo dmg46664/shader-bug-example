@@ -45,5 +45,6 @@
   <modules>
     <module>assets</module>
     <module>core</module>
+      <module>android</module>
   </modules>
 </project>
